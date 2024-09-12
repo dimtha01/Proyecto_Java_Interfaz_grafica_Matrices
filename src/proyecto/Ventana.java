@@ -2,6 +2,10 @@ package proyecto;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.text.DecimalFormat;
+
 import javax.swing.*;
 import java.util.Random;
 
@@ -145,7 +149,10 @@ public class Ventana extends JFrame {
         int[] diagonalSecundaria = obtenerDiagonalSecundaria(matrizSuma);
         int max = encontrarMaximo(diagonalSecundaria);
         int min = encontrarMinimo(diagonalSecundaria);
-        double potencia = Math.pow(max, min);
+
+        BigDecimal potencia = calcularPotencia(new BigDecimal(max), min);
+        System.out.println(potencia);
+        String notacionCientifica = notacionCientifica(potencia);
         double promedioUltimaFila = calcularPromedioUltimaFila();
 
         textAreaResultados.setText("");
@@ -154,7 +161,7 @@ public class Ventana extends JFrame {
         textAreaResultados.append(crearLinea(90));
         textAreaResultados.append(String.format("Número mayor en la diagonal secundaria: %d\n", max));
         textAreaResultados.append(String.format("Número menor en la diagonal secundaria: %d\n", min));
-        textAreaResultados.append(String.format("Resultado de la potencia (%.2f^%d): %.2f\n", (double) max, min, potencia));
+        textAreaResultados.append(String.format("Resultado de la potencia (%.2f^%d): %s\n", (double) max, min, notacionCientifica));
         textAreaResultados.append(crearLinea(90));
         textAreaResultados.append("NÚMEROS POSITIVOS DE LA COLUMNA\n");
         textAreaResultados.append(crearLinea(90));
@@ -165,6 +172,28 @@ public class Ventana extends JFrame {
         textAreaResultados.append(String.format("Promedio de la última fila (multiplicación): %.2f\n", promedioUltimaFila));
         verificarEsquinasPrimos();
         textAreaResultados.append(crearLinea(90));
+    }
+     private  BigDecimal calcularPotencia(BigDecimal base, int exponente) {
+        if (exponente == 0) {
+            return BigDecimal.ONE; // Cualquier número elevado a la 0 es 1
+        }
+
+        if (exponente < 0) {
+            base = BigDecimal.ONE.divide(base, MathContext.DECIMAL128); // Inverso para exponentes negativos
+            exponente = -exponente; // Hacer el exponente positivo
+        }
+
+        BigDecimal resultado = BigDecimal.ONE;
+        for (int i = 0; i < exponente; i++) {
+            resultado = resultado.multiply(base);
+        }
+
+        return resultado;
+    }
+    private String notacionCientifica(BigDecimal potencia){
+        DecimalFormat formatoCientifico = new DecimalFormat("0.###E0");
+        String resultadoCientifico = formatoCientifico.format(potencia);
+        return resultadoCientifico;
     }
 
     private void mostrarError(String mensaje) {
@@ -311,20 +340,20 @@ public class Ventana extends JFrame {
 
         textArea.append("+");
         for (int i = 0; i < n; i++) {
-            textArea.append("--------+");
+            textArea.append("-----------------+");
         }
         textArea.append("\n");
 
         for (int[] fila : matriz) {
             textArea.append("|");
             for (int valor : fila) {
-                textArea.append(String.format(" %5d |", valor));
+                textArea.append(String.format(" %5d\t|", valor));
             }
             textArea.append("\n");
 
             textArea.append("+");
             for (int i = 0; i < n; i++) {
-                textArea.append("--------+");
+                textArea.append("-----------------+");
             }
             textArea.append("\n");
         }
